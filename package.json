@@ -1,0 +1,33 @@
+{
+  "name": "nodejs-tactical-game-server",
+  "version": "1.0.0",
+  "description": "Server side for tactical game polri. Edit",
+  "main": "index.js",
+  "dependencies": {
+    "http": "^0.0.0",
+    "crypto": "^0.0.3",
+    "express": "^4.15.2",
+    "mysql": "^2.13.0",
+    "socket.io": "^1.7.3",
+    "randomstring": "^1.1.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/febfeb/nodejs-tactical-game-server.git"
+  },
+  "keywords": [
+    "es6",
+    "socket-io",
+    "mysql"
+  ],
+  "author": "Febrianto Arif Rakhman <feb@arkana.tech> (http://arkana.tech)",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/febfeb/nodejs-tactical-game-server/issues"
+  },
+  "homepage": "https://github.com/febfeb/nodejs-tactical-game-server#readme"
+}

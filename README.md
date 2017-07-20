@@ -9,3 +9,8 @@ Connecting tactical game Unity3D clients.
 
 # todo
 - Make this scalable.
+
+# install
+```
+cd nodejs-tactical-game-server && npm install
+```
