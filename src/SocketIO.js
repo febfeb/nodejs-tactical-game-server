@@ -1,5 +1,5 @@
-class SocketIO{
-    constructor(http){
+class SocketIO {
+    constructor(http) {
         this.io = require('socket.io')(http, {
             transports: ['polling', 'websocket'],
         });
@@ -30,12 +30,12 @@ class SocketIO{
         */
         socket.on('createRoom', (msg) => {
             console.log("createRoom...");
-            if(msg.name) {
+            if (msg.name) {
                 let room = {
                     id: require("randomstring").generate(),
                     name: msg.name,
                     score: 0,
-                    readyCounter : 0
+                    readyCounter: 0
                 };
                 this.rooms.push(room);
                 console.log('emit roomCreated');
@@ -59,8 +59,8 @@ class SocketIO{
             let roleId = msg.roleId;
             let room = null;
 
-            if(roomId == null){
-                if(msg.roomName == ''){
+            if (roomId == null) {
+                if (msg.roomName == '') {
                     console.log('emit roomNotJoined');
                     socket.emit('roomNotJoined', {});
                     return;
@@ -68,77 +68,77 @@ class SocketIO{
 
                 //check if room name exist
                 let exist = false;
-                for(let i=0;i<this.rooms.length;i++){
-                    if(this.rooms[i].name == msg.roomName) {
+                for (let i = 0; i < this.rooms.length; i++) {
+                    if (this.rooms[i].name == msg.roomName) {
                         exist = true;
                         roomId = this.rooms[i].id;
                         break;
                     }
                 }
 
-                if(exist == false){
+                if (exist == false) {
                     //create new Room
                     room = {
                         id: require("randomstring").generate(),
                         name: msg.roomName,
                         score: 0,
-                        readyCounter : 0
+                        readyCounter: 0
                     };
                     this.rooms.push(room);
                     console.log('emit roomCreated');
                     socket.emit('roomCreated', room);
-                    this.io.emit('roomList', { data : this.rooms });
+                    this.io.emit('roomList', { data: this.rooms });
                     roomId = room.id;
                 }
-            }else{
-                this.rooms.forEach((room)=>{
-                    if(room.id == roomId){
+            } else {
+                this.rooms.forEach((room) => {
+                    if (room.id == roomId) {
                         this.room = room;
                     }
                 });
             }
-            
+
             //check username & password
             this.mysql.query(`SELECT * FROM user WHERE username = '${msg.username}' AND password = '${msg.password}'`, (error, results, fields) => {
                 if (error) throw error;
 
                 let loggedInUser = null;
-                results.forEach((user)=>{
+                results.forEach((user) => {
                     loggedInUser = {
                         id: user.id,
-                        name : user.nama_lengkap,
-                        username : user.username,
-                        password : user.password,
-                        roomId : roomId,
-                        roleId : roleId,
+                        name: user.nama_lengkap,
+                        username: user.username,
+                        password: user.password,
+                        roomId: roomId,
+                        roleId: roleId,
                         socket: socket
                     };
                 });
 
                 //hapus user duplikat
-                for(let i=0;i<this.users.length;i++){
-                    if(this.users[i].id == loggedInUser.id) {
+                for (let i = 0; i < this.users.length; i++) {
+                    if (this.users[i].id == loggedInUser.id) {
                         this.users.splice(i, 1);
                         break;
                     }
                 }
 
-                if(loggedInUser !== null){
+                if (loggedInUser !== null) {
                     this.users.push(loggedInUser);
 
                     console.log('emit roomJoined');
                     socket.emit('roomJoined', {
                         id: loggedInUser.id,
-                        name : loggedInUser.name,
-                        username : loggedInUser.username,
-                        password : loggedInUser.password,
-                        roomId : loggedInUser.roomId,
-                        roleId : loggedInUser.roleId,
+                        name: loggedInUser.name,
+                        username: loggedInUser.username,
+                        password: loggedInUser.password,
+                        roomId: loggedInUser.roomId,
+                        roleId: loggedInUser.roleId,
                     });
 
                     //Mungkin perlu dipertimbangkan lebih lanjut
                     this.emitUserList(this.io, msg.roomId);
-                }else{
+                } else {
                     console.log('emit roomNotJoined');
                     socket.emit('roomNotJoined', {});
                 }
@@ -155,16 +155,20 @@ class SocketIO{
         }
         */
         socket.on('broadcastToRoom', (msg) => {
-            console.log("broadcastToRoom... "+msg.action);
+            console.log("broadcastToRoom... " + msg.action);
             console.log(msg);
-            if(msg.roomId) {
+            if (msg.roomId) {
                 this.users.map(user => {
-                    if(user.roomId == msg.roomId && user.id != msg.userId){
-                        console.log('emit receive UID:'+user.id);
+                    if (user.roomId == msg.roomId && user.id != msg.userId) {
+                        console.log('emit receive UID:' + user.id);
                         user.socket.emit('receive', msg);
                     }
                 });
             }
+        });
+
+        socket.on('debugger', (msg) => {
+            console.log("debug: ", msg);
         });
 
         //broadcast message to room
@@ -181,30 +185,30 @@ class SocketIO{
             let selectedRoom = null;
             let userCount = 0;
 
-            if(roomId) {
-                this.rooms.forEach((room)=>{
-                    if(room.id == roomId){
+            if (roomId) {
+                this.rooms.forEach((room) => {
+                    if (room.id == roomId) {
                         room.readyCounter += 1;
                         selectedRoom = room;
                     }
                 });
 
-                this.users.forEach((user)=>{
-                    if(user.roomId == roomId){
+                this.users.forEach((user) => {
+                    if (user.roomId == roomId) {
                         userCount += 1;
                     }
                 });
 
-                if(userCount == selectedRoom.readyCounter){
+                if (userCount == selectedRoom.readyCounter) {
                     //broadcast to room
-                    this.users.forEach((user)=>{
-                        if(user.roomId == roomId){
-                            user.socket.emit("readyToPlay", { data : "OK"});
+                    this.users.forEach((user) => {
+                        if (user.roomId == roomId) {
+                            user.socket.emit("readyToPlay", { data: "OK" });
                         }
                     });
 
-                    this.rooms.forEach((room)=>{
-                        if(room.id == roomId){
+                    this.rooms.forEach((room) => {
+                        if (room.id == roomId) {
                             room.readyCounter = 0;
                         }
                     });
@@ -222,18 +226,18 @@ class SocketIO{
             console.log("increaseScore...");
             let roomId = msg.roomId;
             let selectedRoom = null;
-            if(roomId) {
-                this.rooms.forEach((room)=>{
-                    if(room.id == roomId){
+            if (roomId) {
+                this.rooms.forEach((room) => {
+                    if (room.id == roomId) {
                         room.score += 100;
                         selectedRoom = room;
                     }
                 });
 
                 this.users.map(user => {
-                    if(user.roomId == roomId){
+                    if (user.roomId == roomId) {
                         console.log('emit scoreChanged');
-                        user.socket.emit('scoreChanged', {score:selectedRoom.score});
+                        user.socket.emit('scoreChanged', { score: selectedRoom.score });
                     }
                 });
             }
@@ -249,18 +253,18 @@ class SocketIO{
             console.log("decreaseScore...");
             let roomId = msg.roomId;
             let selectedRoom = null;
-            if(roomId) {
-                this.rooms.forEach((room)=>{
-                    if(room.id == roomId){
+            if (roomId) {
+                this.rooms.forEach((room) => {
+                    if (room.id == roomId) {
                         room.score -= 50;
                         selectedRoom = room;
                     }
                 });
 
                 this.users.map(user => {
-                    if(user.roomId == roomId){
+                    if (user.roomId == roomId) {
                         console.log('emit scoreChanged');
-                        user.socket.emit('scoreChanged', {score:selectedRoom.score});
+                        user.socket.emit('scoreChanged', { score: selectedRoom.score });
                     }
                 });
             }
@@ -281,7 +285,7 @@ class SocketIO{
         socket.on('roomList', (msg) => {
             console.log("RoomList...");
             console.log('emit roomList');
-            socket.emit('roomList', { data : this.rooms });
+            socket.emit('roomList', { data: this.rooms });
         });
 
         socket.on('consoleRoomList', (msg) => {
@@ -289,7 +293,7 @@ class SocketIO{
         });
 
         socket.on('consoleUserList', (msg) => {
-            socket.emit('consoleUserList', this.users.map((user)=>{
+            socket.emit('consoleUserList', this.users.map((user) => {
                 return {
                     id: user.id,
                     name: user.name,
@@ -299,13 +303,18 @@ class SocketIO{
                 };
             }));
         });
+
+        socket.on('reset', (msg) => {
+            this.rooms = [];
+            this.users = [];
+        });
     }
 
     emitUserList(socket, roomId) {
-        if(roomId) {
+        if (roomId) {
             let userList = [];
             this.users.forEach(user => {
-                if(user.roomId == roomId){
+                if (user.roomId == roomId) {
                     userList.push({
                         id: user.id,
                         name: user.name,
@@ -316,7 +325,7 @@ class SocketIO{
                 }
             });
             console.log('emit userList');
-            socket.emit('userList', { data : userList });
+            socket.emit('userList', { data: userList });
         }
     }
 }

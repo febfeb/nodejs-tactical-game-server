@@ -36,10 +36,13 @@
         </style>
     </head>
     <body>
-        <div id="messages" style="width:50%;float:left">
+        <div id="messages" style="width:30%;float:left">
 
         </div>
-        <div style="width:50%;float:left" id="sidebar">
+        <div style="width:70%;float:left" id="sidebar">
+            <div style="background: #e74c3c;padding:20px;font-size:30px;cursor: pointer" id="reset">
+                Reset Data
+            </div>
             <div style="width:50%;float:left;background: #3498db;padding:20px">
                 <h1>List Room</h1>
                 <pre id="roomList"></pre>
@@ -63,7 +66,7 @@
             });
 
             socket.on('consoleUserList', function(msg) {
-                $("#userList").text(JSON.stringify(msg, null, "\t"));
+                $("#userList").text(JSON.stringify(msg, null, 2));
             });
 
             socket.on('consoleRoomList', function(msg) {
@@ -81,6 +84,12 @@
             socket.emit("login_console");
             socket.on('on_console', function (msg) {
                 $("#messages").append("<li>"+JSON.stringify(msg)+"</li>");
+            });
+
+            $("#reset").click(function(){
+                socket.emit("reset", {});
+                alert("Data has been reseted.")
+                return false;
             });
 
             $("#send").click(function(){

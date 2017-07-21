@@ -1,4 +1,4 @@
-class Query{
+class Query {
     query() {
         return 'querying...'
     }
